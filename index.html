@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notes</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #f9f9f9;
+      color: #111;
+      margin: 10px;
+      font-size: 11px;
+    }
+    h1 {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .program {
+      margin-bottom: 12px;
+      padding: 4px;
+    }
+    .program h3 {
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    button {
+      background-color: #eee;
+      border: 1px solid #ccc;
+      color: #111;
+      font-size: 10px;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ddd;
+    }
+    .hidden-code {
+      display: none;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+
+<h1></h1>
+
+<div class="program">
+  <h3>1. Program 1</h3>
+  <div id="code1" class="hidden-code">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import fetch_california_housing
+
+
+df = fetch_california_housing(as_frame=True).frame
+numerical_features = df.select_dtypes(include=[np.number]).columns
+
+fig, axes = plt.subplots(3, 3, figsize=(15, 12))
+for ax, feature in zip(axes.flat, numerical_features):
+    sns.histplot(df[feature], kde=True, bins=30, ax=ax)</div>
+  <button onclick="copyCode('code1')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>2. Program 2</h3>
+  <div id="code2" class="hidden-code">import pandas as pd, numpy as np, seaborn as sns, matplotlib.pyplot as plt
+from sklearn.datasets import fetch_california_housing
+
+df = fetch_california_housing(as_frame=True).frame
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
+sns.pairplot(df.iloc[:, :5], plot_kws={'alpha': 0.7})</div>
+  <button onclick="copyCode('code2')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>3. Program 3</h3>
+  <div id="code3" class="hidden-code">import numpy as np, pandas as pd, matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+
+
+X, y = load_iris(return_X_y=True)
+X_scaled = StandardScaler().fit_transform(X)
+
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis', edgecolor='k', s=50)
+plt.xlabel('PC 1'), plt.ylabel('PC 2')
+plt.title('PCA - Iris (2D)'), plt.colorbar(label='Species')
+plt.show()</div>
+  <button onclick="copyCode('code3')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>4. Program 4</h3>
+  <div id="code4" class="hidden-code">import pandas as pd
+
+def find_s(file):
+    data = pd.read_csv(file)
+    hypo = ['?'] * (len(data.columns) - 1)
+    for _, row in data.iterrows():
+        if row[-1] == 'Yes':
+            for i in range(len(hypo)):
+                if hypo[i] == '?': hypo[i] = row[i]
+                elif hypo[i] != row[i]: hypo[i] = '?'
+    return hypo
+
+print("Final Hypothesis:", find_s("training_data.csv"))
+</div>
+  <button onclick="copyCode('code4')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>5. Program 5</h3>
+  <div id="code5" class="hidden-code">
+import numpy as np, matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+X = np.random.rand(100, 1)
+y = np.array([1 if x <= 0.5 else 2 for x in X[:50]] + [0]*50)
+
+X_train, y_train, X_test = X[:50], y[:50], X[50:]
+k_vals, accs = [1, 2, 3, 4, 5, 20, 30], []
+
+for k in k_vals:
+    model = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
+    pred = model.predict(X[50:])
+    acc = accuracy_score(y[50:], pred)
+    accs.append(acc)
+    print(f'k={k}: accuracy={acc:.4f}')
+
+
+plt.figure(figsize=(10, 6))
+plt.scatter(X_train, y_train, c='blue', label='Train')
+plt.scatter(X_test, y[50:], c='red', label='Test')
+plt.title('KNN Classification'), plt.xlabel('X'), plt.ylabel('Class')
+plt.legend(), plt.show()
+
+
+X_full = np.linspace(0, 1, 500).reshape(-1, 1)
+plt.figure(figsize=(10, 6))
+for k in k_vals:
+    y_pred = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train).predict(X_full)
+    plt.plot(X_full, y_pred, label=f'k={k}')
+plt.scatter(X_train, y_train, c='blue'), plt.scatter(X_test, y[50:], c='red')
+plt.title('KNN Decision Boundaries'), plt.xlabel('X'), plt.ylabel('Class')
+plt.legend(), plt.show()
+
+</div>
+  <button onclick="copyCode('code5')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>6. Program 6</h3>
+  <div id="code6" class="hidden-code">import numpy as np
+import matplotlib.pyplot as plt
+
+def lwlr(X, Y, Xq, tau=0.1):
+    m = X.shape[0]
+    X = np.c_[np.ones(m), X]
+    Xq = np.c_[np.ones(Xq.shape[0]), Xq]
+    Y = Y.reshape(-1, 1)
+    Yp = []
+
+    for x in Xq:
+        W = np.diag(np.exp(-np.sum((X - x)**2, axis=1) / (2 * tau**2)))
+        theta = np.linalg.pinv(X.T @ W @ X) @ X.T @ W @ Y
+        Yp.append(x @ theta)
+
+    return np.array(Yp)
+
+
+np.random.seed(42)
+X = np.sort(np.random.rand(100, 1), axis=0)
+Y = np.sin(2 * np.pi * X) + 0.1 * np.random.randn(100, 1)
+Xq = np.linspace(0, 1, 100).reshape(-1, 1)
+
+
+plt.figure(figsize=(10, 6))
+for t in [0.1, 0.3, 0.5, 1.0, 2.0]:
+    plt.plot(Xq, lwlr(X, Y, Xq, t), label=f'tau={t}')
+plt.scatter(X, Y, color='red', label='Data')
+plt.title('LWLR'); plt.xlabel('X'); plt.ylabel('Y'); plt.legend(); plt.show()
+</div>
+  <button onclick="copyCode('code6')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>7. Program 7</h3>
+  <div id="code7" class="hidden-code">import numpy as np, pandas as pd, matplotlib.pyplot as plt
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics import mean_squared_error, r2_score
+
+
+data = fetch_california_housing(as_frame=True)
+X, y = data.data[["AveRooms"]], data.target
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+lr = LinearRegression().fit(X_tr, y_tr)
+y_pr = lr.predict(X_te)
+plt.scatter(X_te, y_te, c='b', label="Actual")
+plt.plot(X_te, y_pr, c='r', label="Predicted")
+plt.xlabel("AveRooms"); plt.ylabel("House Value"); plt.title("Linear Regression - CA")
+plt.legend(); plt.show()
+print("CA: MSE =", mean_squared_error(y_te, y_pr), "R² =", r2_score(y_te, y_pr))
+
+
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data"
+cols = ["mpg","cyl","disp","hp","wt","acc","year","origin"]
+df = pd.read_csv(url, sep='\s+', names=cols, na_values="?").dropna()
+X, y = df["disp"].values.reshape(-1,1), df["mpg"].values
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+pr = make_pipeline(PolynomialFeatures(2), StandardScaler(), LinearRegression()).fit(X_tr, y_tr)
+y_pr = pr.predict(X_te)
+plt.scatter(X_te, y_te, c='b', label="Actual")
+plt.scatter(X_te, y_pr, c='r', label="Predicted")
+plt.xlabel("Displacement"); plt.ylabel("MPG"); plt.title("Polynomial Regression - Auto MPG")
+plt.legend(); plt.show()
+print("Auto MPG: MSE =", mean_squared_error(y_te, y_pr), "R² =", r2_score(y_te, y_pr))
+</div>
+  <button onclick="copyCode('code7')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>8. Program 8</h3>
+  <div id="code8" class="hidden-code">import numpy as np, pandas as pd, matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, classification_report
+
+
+data = load_breast_cancer()
+X, y = data.data, data.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+clf = DecisionTreeClassifier(random_state=42).fit(X_train, y_train)
+
+
+
+plt.figure(figsize=(12, 6))
+plot_tree(clf, filled=True, feature_names=data.feature_names, class_names=data.target_names)
+plt.title("Decision Tree")
+plt.show()
+</div>
+  <button onclick="copyCode('code8')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>9. Program 9</h3>
+  <div id="code9" class="hidden-code">import numpy as np 
+from sklearn.datasets import fetch_olivetti_faces 
+from sklearn.model_selection import train_test_split, cross_val_score 
+from sklearn.naive_bayes import GaussianNB 
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix 
+import matplotlib.pyplot as plt 
+data = fetch_olivetti_faces(data_home="  ") 
+X = data.data 
+y = data.target 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42) 
+gnb = GaussianNB() 
+gnb.fit(X_train, y_train) 
+y_pred = gnb.predict(X_test) 
+accuracy = accuracy_score(y_test, y_pred) 
+print(f'Accuracy: {accuracy * 100:.2f}%') 
+print("\nClassification Report:") 
+print(classification_report(y_test, y_pred, zero_division=1)) 
+print("\nConfusion Matrix:") 
+print(confusion_matrix(y_test, y_pred)) 
+cross_val_accuracy = cross_val_score(gnb, X, y, cv=5, scoring='accuracy') 
+print(f'\nCross-validation accuracy: {cross_val_accuracy.mean() * 100:.2f}%') 
+fig, axes = plt.subplots(3, 5, figsize=(12, 8)) 
+for ax, image, label, prediction in zip(axes.ravel(), X_test, y_test, y_pred): 
+    ax.imshow(image.reshape(64, 64), cmap=plt.cm.gray) 
+    ax.set_title(f"True: {label}, Pred: {prediction}") 
+    ax.axis('off') 
+plt.show() 
+</div>
+  <button onclick="copyCode('code9')">Copy</button>
+</div>
+
+<div class="program">
+  <h3>10. Program 10</h3>
+  <div id="code10" class="hidden-code">import numpy as np, pandas as pd, matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
+
+
+
+
+X, y = load_breast_cancer(return_X_y=True)
+X_scaled = StandardScaler().fit_transform(X)
+
+kmeans = KMeans(n_clusters=2, random_state=42).fit(X_scaled)
+clusters = kmeans.predict(X_scaled)
+X_pca = PCA(n_components=2).fit_transform(X_scaled)
+centroids = PCA(n_components=2).fit(X_scaled).transform(kmeans.cluster_centers_)
+
+
+plt.scatter(*X_pca[clusters==0].T, c='red', label='Cluster 0')
+plt.scatter(*X_pca[clusters==1].T, c='blue', label='Cluster 1')
+plt.scatter(*centroids.T, c='black', s=200, marker='X', label='Centroids')
+plt.title('K-Means on Breast Cancer Data'), plt.legend()
+plt.xlabel('PC1'), plt.ylabel('PC2'), plt.show()
+</div>
+  <button onclick="copyCode('code10')">Copy</button>
+</div>
+
+<script>
+  function copyCode(id) {
+    const code = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      alert("Copied");
+    });
+  }
+</script>
+
+</body>
+</html>
